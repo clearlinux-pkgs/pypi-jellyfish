@@ -1,5 +1,5 @@
 PKG_NAME := pypi-jellyfish
-URL = https://files.pythonhosted.org/packages/88/ee/c8c7a899960e3a116c0e0cc95aa250fb7269784a472fa590b5ce042cc48a/jellyfish-0.8.9.tar.gz
+URL = https://files.pythonhosted.org/packages/26/18/cd485f3661c8e8c0ab864c2e54033371dcc1f7e75767318a4044b2808ed4/jellyfish-0.9.0.tar.gz
 ARCHIVES = 
 
 include ../common/Makefile.common
