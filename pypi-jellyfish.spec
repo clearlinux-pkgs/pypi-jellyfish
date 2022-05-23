@@ -4,12 +4,14 @@
 #
 Name     : pypi-jellyfish
 Version  : 0.9.0
-Release  : 9
+Release  : 10
 URL      : https://files.pythonhosted.org/packages/26/18/cd485f3661c8e8c0ab864c2e54033371dcc1f7e75767318a4044b2808ed4/jellyfish-0.9.0.tar.gz
 Source0  : https://files.pythonhosted.org/packages/26/18/cd485f3661c8e8c0ab864c2e54033371dcc1f7e75767318a4044b2808ed4/jellyfish-0.9.0.tar.gz
 Summary  : a library for doing approximate and phonetic matching of strings.
 Group    : Development/Tools
 License  : BSD-2-Clause
+Requires: pypi-jellyfish-filemap = %{version}-%{release}
+Requires: pypi-jellyfish-lib = %{version}-%{release}
 Requires: pypi-jellyfish-license = %{version}-%{release}
 Requires: pypi-jellyfish-python = %{version}-%{release}
 Requires: pypi-jellyfish-python3 = %{version}-%{release}
@@ -18,6 +20,24 @@ BuildRequires : buildreq-distutils3
 %description
 # Overview
 **jellyfish** is a library for approximate & phonetic matching of strings.
+
+%package filemap
+Summary: filemap components for the pypi-jellyfish package.
+Group: Default
+
+%description filemap
+filemap components for the pypi-jellyfish package.
+
+
+%package lib
+Summary: lib components for the pypi-jellyfish package.
+Group: Libraries
+Requires: pypi-jellyfish-license = %{version}-%{release}
+Requires: pypi-jellyfish-filemap = %{version}-%{release}
+
+%description lib
+lib components for the pypi-jellyfish package.
+
 
 %package license
 Summary: license components for the pypi-jellyfish package.
@@ -39,6 +59,7 @@ python components for the pypi-jellyfish package.
 %package python3
 Summary: python3 components for the pypi-jellyfish package.
 Group: Default
+Requires: pypi-jellyfish-filemap = %{version}-%{release}
 Requires: python3-core
 Provides: pypi(jellyfish)
 
@@ -49,13 +70,16 @@ python3 components for the pypi-jellyfish package.
 %prep
 %setup -q -n jellyfish-0.9.0
 cd %{_builddir}/jellyfish-0.9.0
+pushd ..
+cp -a jellyfish-0.9.0 buildavx2
+popd
 
 %build
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1649769067
+export SOURCE_DATE_EPOCH=1653338624
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
@@ -67,6 +91,15 @@ export CXXFLAGS="$CXXFLAGS -O3 -ffat-lto-objects -flto=auto "
 export MAKEFLAGS=%{?_smp_mflags}
 python3 setup.py build
 
+pushd ../buildavx2/
+export CFLAGS="$CFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export CXXFLAGS="$CXXFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export FFLAGS="$FFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export FCFLAGS="$FCFLAGS -m64 -march=x86-64-v3 "
+export LDFLAGS="$LDFLAGS -m64 -march=x86-64-v3 "
+python3 setup.py build
+
+popd
 %install
 export MAKEFLAGS=%{?_smp_mflags}
 rm -rf %{buildroot}
@@ -76,9 +109,26 @@ python3 -tt setup.py build  install --root=%{buildroot}
 echo ----[ mark ]----
 cat %{buildroot}/usr/lib/python3*/site-packages/*/requires.txt || :
 echo ----[ mark ]----
+pushd ../buildavx2/
+export CFLAGS="$CFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export CXXFLAGS="$CXXFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export FFLAGS="$FFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export FCFLAGS="$FCFLAGS -m64 -march=x86-64-v3 "
+export LDFLAGS="$LDFLAGS -m64 -march=x86-64-v3 "
+python3 -tt setup.py build install --root=%{buildroot}-v3
+popd
+/usr/bin/elf-move.py avx2 %{buildroot}-v3 %{buildroot}/usr/share/clear/optimized-elf/ %{buildroot}/usr/share/clear/filemap/filemap-%{name}
 
 %files
 %defattr(-,root,root,-)
+
+%files filemap
+%defattr(-,root,root,-)
+/usr/share/clear/filemap/filemap-pypi-jellyfish
+
+%files lib
+%defattr(-,root,root,-)
+/usr/share/clear/optimized-elf/other*
 
 %files license
 %defattr(0644,root,root,0755)
