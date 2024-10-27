@@ -7,7 +7,7 @@
 #
 Name     : pypi-jellyfish
 Version  : 0.9.0
-Release  : 23
+Release  : 24
 URL      : https://files.pythonhosted.org/packages/26/18/cd485f3661c8e8c0ab864c2e54033371dcc1f7e75767318a4044b2808ed4/jellyfish-0.9.0.tar.gz
 Source0  : https://files.pythonhosted.org/packages/26/18/cd485f3661c8e8c0ab864c2e54033371dcc1f7e75767318a4044b2808ed4/jellyfish-0.9.0.tar.gz
 Summary  : Approximate and phonetic matching of strings.
